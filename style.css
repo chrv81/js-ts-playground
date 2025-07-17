@@ -84,6 +84,10 @@ input[type='checkbox'] {
   border: 1px solid #4e4e4e;
 }
 
+.error-text {
+  color: #ff4d4f !important;
+}
+
 /* Button Styles */
 .run-code-btn .run-code-text {
   font-family: 'Courier New', monospace, sans-serif;
