@@ -212,7 +212,7 @@ const executeCode = (code) => {
     outputEl.classList.remove('error-text');
     outputEl.textContent = output;
   } catch (error) {
-    outputEl.textContent = '❗️ Error: ' + error.message;
+    outputEl.textContent = '❗️ Error: ' + error.message + '\n';
     outputEl.classList.add('error-text');
   }
 
