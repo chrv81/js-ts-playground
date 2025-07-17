@@ -12,6 +12,10 @@ const INIT_TS_CODE = `// Start coding!\nconst greeting: (name: string) => void =
 const LOCAL_STORAGE_SAVED_CODE = 'PLAYGROUND__save_code';
 const LOCAL_STORAGE_SETTINGS = 'PLAYGROUND__settings';
 
+// cookie
+const PLAGROROUND_DEV = 'PLAYGROUND__dev_debug';
+const isDevDebug = document.cookie.includes(`${PLAGROROUND_DEV}=true`);
+
 // functions to handle editor operations
 const initCodeEditor = (language = 'javascript') => {
   switch (language) {
@@ -90,10 +94,93 @@ window.addEventListener('change', (e) => {
   const target = e.target;
   if (target.id === 'language-selector') {
     settings.language = target.value;
+    monacoLibrary.editor.setModelLanguage(editor.getModel(), target.value);
+
+    // Only save settings if autoRun is enabled
+    settings.autoSave && saveSettings();
+
+    // Show popup debug for dev
+    isDevDebug &&
+      showSettingsPopup(
+        `Language changed to <b>${
+          target.value
+        }</b><br><br>Settings: <pre>${JSON.stringify(settings, null, 2)}</pre>`
+      );
+  }
+
+  if (target.id === 'save-code') {
+    settings.autoSave = target.checked;
+
+    // Only save settings if autoRun is enabled
+    settings.autoSave && saveSettings();
+
+    // Show popup debug for dev
+    isDevDebug &&
+      showSettingsPopup(
+        `Auto Save is now <b>${settings.autoSave ? 'enabled' : 'disabled'}</b>`
+      );
+  }
+
+  if (target.id === 'auto-run') {
+    settings.autoRun = target.checked;
+
+    // Only save settings if autoRun is enabled
+    settings.autoSave && saveSettings();
+
+    // Show popup debug for dev
+    isDevDebug &&
+      showSettingsPopup(
+        `Auto Run is now <b>${settings.autoRun ? 'enabled' : 'disabled'}</b>`
+      );
+  }
+
+  if (target.id === 'theme-toggle') {
+    settings.theme = target.checked;
+    const themeValue = target.checked ? 'vs' : 'vs-dark';
+    monacoLibrary.editor.setTheme(themeValue);
+
+    // Show popup debug for dev
+    isDevDebug && showSettingsPopup(`Theme changed to <b>${themeValue}</b>`);
+
+    applyThemeToContainers(target.checked);
   }
 });
 
-// Run Code
+/**
+ * Quick Pop-up for dev debug
+ */
+const showSettingsPopup = (message) => {
+  const popup = document.getElementById('settings-popup');
+  popup.innerHTML = `<i class="info icon"></i> ${message}`;
+  popup.style.display = 'block';
+  setTimeout(() => {
+    popup.style.display = 'none';
+  }, 5000);
+};
+
+/**
+ * Change background color and text color
+ */
+const applyThemeToContainers = (isLight) => {
+  const editorEl = getEl('editor-container');
+  outputEl = getEl('output-container');
+
+  if (isLight) {
+    editorEl.classList.add('bg-light', 'text-dark');
+    editorEl.classList.remove('bg-dark', 'text-light');
+    outputEl.classList.add('bg-light', 'text-dark');
+    outputEl.classList.remove('bg-dark', 'text-light');
+  } else {
+    editorEl.classList.add('bg-dark', 'text-light');
+    editorEl.classList.remove('bg-light', 'text-dark');
+    outputEl.classList.add('bg-dark', 'text-light');
+    outputEl.classList.remove('bg-light', 'text-dark');
+  }
+};
+
+/**
+ * Run code is called when the "Run Code" button is clicked
+ */
 const runCode = async () => {
   // alert('Run Code function called');
   outputEl.innerHTML = '';
@@ -108,7 +195,10 @@ const runCode = async () => {
   }
 };
 
-// Execute Code
+/**
+ * Execute the code in the editor
+ * This function captures console.log output and displays it in the output container
+ */
 const executeCode = (code) => {
   // Save original console.log
   const originalLog = console.log;
