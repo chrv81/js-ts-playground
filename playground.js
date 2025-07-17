@@ -9,11 +9,8 @@ const INIT_JS_CODE = `// Start coding!\nconst greeting = (name) => console.log('
 const INIT_TS_CODE = `// Start coding!\nconst greeting: (name: string) => void = (name) => console.log('Hello ' + name + '!');\ngreeting('World');`;
 
 // local storage keys
-const LOCAL_STORAGE_LANG = 'PLAYGROUND__lang';
-const LOCAL_STORAGE_THEME = 'PLAYGROUND__theme';
-const LOCAL_STORAGE_AUTO_SAVE = 'PLAYGROUND__auto_save';
-const LOCAL_STORAGE_AUTO_RUN = 'PLAYGROUND__auto_run';
-const LOCAL_STORAGE_SAVE_CODE = 'PLAYGROUND__save_code';
+const LOCAL_STORAGE_SAVED_CODE = 'PLAYGROUND__save_code';
+const LOCAL_STORAGE_SETTINGS = 'PLAYGROUND__settings';
 
 // functions to handle editor operations
 const initCodeEditor = (language = 'javascript') => {
@@ -32,57 +29,44 @@ const defaultSetting = {
   code: initCodeEditor(),
   language: 'javascript',
   theme: 'vs-dark',
-  autoSave: true,
+  autoSave: false,
   autoRun: false,
 };
 
 let settings = { ...defaultSetting };
+
+// utilities
+const getEl = (id) => document.getElementById(id);
+const outputEl = getEl('output-container');
 
 /**
  * Load settings from localStorage
  * If settings are not found, use default settings
  */
 const loadSettings = () => {
-  settings.language =
-    localStorage.getItem(LOCAL_STORAGE_LANG) || defaultSetting.language;
-  settings.theme =
-    localStorage.getItem(LOCAL_STORAGE_THEME) || defaultSetting.theme;
-  settings.autoSave =
-    localStorage.getItem(LOCAL_STORAGE_AUTO_SAVE) || defaultSetting.autoSave;
-  settings.autoRun =
-    localStorage.getItem(LOCAL_STORAGE_AUTO_RUN) || defaultSetting.autoRun;
-  settings.code =
-    localStorage.getItem(LOCAL_STORAGE_SAVE_CODE) || defaultSetting.code;
+  const stored = JSON.parse(localStorage.getItem(LOCAL_STORAGE_SETTINGS));
+  if (stored) settings = { ...settings, ...stored };
 };
 
 /**
  * Save settings to localStorage
  */
 const saveSettings = () => {
-  localStorage.setItem(LOCAL_STORAGE_LANG, settings.language);
-  localStorage.setItem(LOCAL_STORAGE_THEME, settings.theme);
-  localStorage.setItem(LOCAL_STORAGE_AUTO_SAVE, settings.autoSave);
-  localStorage.setItem(LOCAL_STORAGE_AUTO_RUN, settings.autoRun);
-  localStorage.setItem(LOCAL_STORAGE_SAVE_CODE, settings.code);
+  localStorage.setItem(LOCAL_STORAGE_SETTINGS, JSON.stringify(settings));
 };
 
 /**
  * Watching for changes in settings or editor events
  */
-const watchSetting = () => {
-  document
-    .getElementById('language-selector')
-    .addEventListener('change', (e) => {
-      alert('Language changed to: ' + e.target.value);
-      settings.language = e.target.value;
-      monacoEditor.editor.setModelLanguage(
-        editor.getModel(),
-        settings.language
-      );
-      saveSettings();
-    });
-};
+window.addEventListener('change', (e) => {
+  const target = e.target;
+  if (target.id === 'language-selector') {
+    settings.language = target.value;
+    monacoInstance.editor.setModelLanguage(editor.getModel(), prefs.language);
+  }
+});
 
+// Initialize Monaco
 window.require.config({
   paths: {
     vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.47.0/min/vs',
@@ -91,15 +75,16 @@ window.require.config({
 
 window.require(['vs/editor/editor.main'], async (monaco) => {
   monacoEditor = monaco;
+  loadSettings();
 
-  editor = monaco.editor.create(document.getElementById('editor-container'), {
-    value: defaultMonacoConfig.code,
-    language: 'javascript',
-    theme: 'vs-dark',
+  editor = monaco.editor.create(getEl('editor-container'), {
+    value: settings.saveCode ? localStorage.getItem(LS_KEY) : settings.code,
+    language: settings.language,
+    theme: settings.theme,
     automaticLayout: true,
     fontSize: 14,
     minimap: {
-      enabled: true,
+      enabled: false,
     },
     tabSize: 2,
     insertSpaces: true,
