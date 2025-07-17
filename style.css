@@ -65,8 +65,6 @@ input[type='checkbox'] {
 #editor-container {
   width: 60%;
   height: 100%;
-  background: #272727;
-  color: #ccc;
   padding: 10px;
   font-family: monospace, monospace;
   border: 1px solid #4e4e4e;
@@ -75,13 +73,27 @@ input[type='checkbox'] {
 #output-container {
   width: 40%;
   height: 100%;
-  background: #212121;
-  color: #ccc;
   padding: 10px;
   font-family: 'Courier New', monospace, sans-serif;
   overflow-y: auto;
   white-space: pre-wrap;
   border: 1px solid #4e4e4e;
+}
+
+.bg-light {
+  background: #fff !important;
+}
+
+.bg-dark {
+  background: #272727 !important;
+}
+
+.text-light {
+  color: #ccc !important;
+}
+
+.text-dark {
+  color: #222 !important;
 }
 
 .error-text {
