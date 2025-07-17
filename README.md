@@ -34,15 +34,19 @@ playground.js – JavaScript for editor and running code.
 This project is not finished yet. Things I am still working on one-by-one:
 
 **1. Better error output**
+
 I want errors to show in a different color from normal console logs, so it’s easy to see what went wrong
 
 **2. ESLint integration**
+
 I want to add code linting to help catch errors and improve code quality
 
 **3. UI improvements**
+
 The design and layout still need work to look better and be easier to use.
 
 **4. Settings functionality**
+
 Some settings (like auto-run, save code, theme toggle) are currently not working yet.
 
 ## Note:
