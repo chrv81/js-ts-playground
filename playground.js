@@ -220,7 +220,25 @@ const executeCode = (code) => {
   console.log = originalLog;
 };
 
-// Download code
+/**
+ * Object mapping for each programming language
+ * Each language has its way to compile/transpile code
+ */
+const compilerLanguage = {
+  javascript: {
+    compile: (code) => code,
+    extension: 'js',
+  },
+  typescript: {
+    // compile: (code) => ts.transpile(code),
+    extension: 'ts',
+  },
+};
+
+/**
+ * Download code as a file
+ * This function is called when the "Download Code" button is clicked
+ */
 const downloadCode = () => {
   alert('Download Code function called');
 };
