@@ -98,11 +98,13 @@ const runCode = async () => {
   // alert('Run Code function called');
   outputEl.innerHTML = '';
   try {
+    outputEl.classList.remove('error-text');
     const code = editor.getValue();
 
     executeCode(code);
   } catch (error) {
-    outputEl.textContent += 'Error: ' + error.message + '\n';
+    outputEl.textContent += '❗️ Error: ' + error.message + '\n';
+    outputEl.classList.add('error-text');
   }
 };
 
@@ -117,9 +119,11 @@ const executeCode = (code) => {
 
   try {
     eval(code);
+    outputEl.classList.remove('error-text');
     outputEl.textContent = output;
-  } catch (err) {
-    outputEl.textContent = 'Error: ' + err.message;
+  } catch (error) {
+    outputEl.textContent = '❗️ Error: ' + error.message;
+    outputEl.classList.add('error-text');
   }
 
   // Restore original console.log
