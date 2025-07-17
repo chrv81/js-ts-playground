@@ -1,7 +1,7 @@
 'use strict';
 
 // initialize
-let editor, monacoEditor, eslintInstance;
+let editor, monacoLibrary, eslintInstance;
 
 // constants
 const AUTO_RUN_TIME = 30000;
@@ -37,7 +37,7 @@ let settings = { ...defaultSetting };
 
 // utilities
 const getEl = (id) => document.getElementById(id);
-const outputEl = getEl('output-container');
+let outputEl;
 
 /**
  * Load settings from localStorage
@@ -55,17 +55,6 @@ const saveSettings = () => {
   localStorage.setItem(LOCAL_STORAGE_SETTINGS, JSON.stringify(settings));
 };
 
-/**
- * Watching for changes in settings or editor events
- */
-window.addEventListener('change', (e) => {
-  const target = e.target;
-  if (target.id === 'language-selector') {
-    settings.language = target.value;
-    monacoInstance.editor.setModelLanguage(editor.getModel(), prefs.language);
-  }
-});
-
 // Initialize Monaco
 window.require.config({
   paths: {
@@ -74,8 +63,10 @@ window.require.config({
 });
 
 window.require(['vs/editor/editor.main'], async (monaco) => {
-  monacoEditor = monaco;
+  monacoLibrary = monaco;
   loadSettings();
+
+  outputEl = getEl('output-container');
 
   editor = monaco.editor.create(getEl('editor-container'), {
     value: settings.saveCode ? localStorage.getItem(LS_KEY) : settings.code,
@@ -92,9 +83,47 @@ window.require(['vs/editor/editor.main'], async (monaco) => {
   });
 });
 
+/**
+ * Watching for changes in settings or editor events
+ */
+window.addEventListener('change', (e) => {
+  const target = e.target;
+  if (target.id === 'language-selector') {
+    settings.language = target.value;
+  }
+});
+
 // Run Code
-const runCode = () => {
-  alert('Run Code function called');
+const runCode = async () => {
+  // alert('Run Code function called');
+  outputEl.innerHTML = '';
+  try {
+    const code = editor.getValue();
+
+    executeCode(code);
+  } catch (error) {
+    outputEl.textContent += 'Error: ' + error.message + '\n';
+  }
+};
+
+// Execute Code
+const executeCode = (code) => {
+  // Save original console.log
+  const originalLog = console.log;
+  let output = '';
+  console.log = function (...args) {
+    output += args.join(' ') + '\n';
+  };
+
+  try {
+    eval(code);
+    outputEl.textContent = output;
+  } catch (err) {
+    outputEl.textContent = 'Error: ' + err.message;
+  }
+
+  // Restore original console.log
+  console.log = originalLog;
 };
 
 // Download code
