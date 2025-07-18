@@ -199,25 +199,22 @@ const runCode = async () => {
  * Execute the code in the editor
  * This function captures console.log output and displays it in the output container
  */
-const executeCode = (code) => {
-  // Save original console.log
-  const originalLog = console.log;
-  let output = '';
-  console.log = function (...args) {
-    output += args.join(' ') + '\n';
-  };
-
-  try {
-    eval(code);
-    outputEl.classList.remove('error-text');
-    outputEl.textContent = output;
-  } catch (error) {
-    outputEl.textContent = '❗️ Error: ' + error.message + '\n';
+const executeCode = async (code) => {
+  // if programming language is not supported, show error
+  if (!settings.language || !compilerLanguage[settings.language]) {
+    outputEl.textContent = `❗️ Error: Unsupported language "${settings.language}"\n`;
     outputEl.classList.add('error-text');
+    return;
   }
 
-  // Restore original console.log
-  console.log = originalLog;
+  // compile/transpile code if necessary
+  const compiler = compilerLanguage[settings.language];
+  if (compiler.compile) {
+    await compiler.compile(code);
+  } else {
+    outputEl.textContent = `❗️ Error: No compile function defined for "${settings.language}"\n`;
+    outputEl.classList.add('error-text');
+  }
 };
 
 /**
@@ -226,7 +223,24 @@ const executeCode = (code) => {
  */
 const compilerLanguage = {
   javascript: {
-    compile: (code) => code,
+    compile: async (code) => {
+      const originalLog = console.log;
+      let output = '';
+      console.log = function (...args) {
+        output += args.join(' ') + '\n';
+      };
+
+      try {
+        new Function(code)();
+        outputEl.classList.remove('error-text');
+        outputEl.textContent = output;
+      } catch (error) {
+        outputEl.textContent = '❗️ Error: ' + error.message + '\n';
+        outputEl.classList.add('error-text');
+      }
+
+      console.log = originalLog;
+    },
     extension: 'js',
   },
   typescript: {
