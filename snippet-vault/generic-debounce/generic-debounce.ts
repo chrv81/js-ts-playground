@@ -9,7 +9,7 @@ type AnyFunction = (...args: any[]) => any; // eslint-disable-line @typescript-e
  * @param delay in ms
  * @returns value or void
  */
-// eslint-disable-line @typescript-eslint/no-explicit-any
+
 const useGenericDebounce = <T extends AnyFunction, R = ReturnType<T>>(
   fn: T,
   delay: number,
@@ -35,9 +35,9 @@ const useGenericDebounce = <T extends AnyFunction, R = ReturnType<T>>(
       const result = fn(...args);
       if (callback) {
         if (result instanceof Promise) {
-          result.then((resolved: ReturnType<T>) => callback(resolved));
+          result.then((resolved: R) => callback(resolved));
         } else {
-          callback(result as unknown as R);
+          callback(result as R);
         }
       }
     }, delay);
