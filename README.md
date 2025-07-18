@@ -7,6 +7,8 @@ The editor uses **Monaco Editor** (the same editor as VS Code) and has a clean, 
 ## Status:
 Work in progress. More features and fixes coming soon!
 
+Story Board: https://trello.com/invite/b/687a8cbeb99fbc239b41188b/ATTI3523dd58f6d96c30d71e093ec0ad985aA68F2E5E/javascript-typescript-playground
+
 ## Why I choose Semantic UI CDN instead of `npm install`:
 * **Easy to set up**: only need to add a link to the CDN in the HTML. No need to install anything
 * **Works on GitHub Pages**: GitHub Pages only hosts static files -- using CDN means no need to build or install packages
