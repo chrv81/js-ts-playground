@@ -1,6 +1,6 @@
 # Generic Debounce
 
-Debounce time base on what function it is, make it so generic that we can pass in any function. That is include `Promise` function or function with `return` or just `avoid` type function.
+Debounce time is based on the function being passed. It is designed to be generic, allowing any function to be passed, including `Promise` functions, functions with a `return` value, or `void` type functions.
 
 Function take in:
 
