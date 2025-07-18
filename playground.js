@@ -128,7 +128,7 @@ window.require(['vs/editor/editor.main'], async (monaco) => {
     contextmenu: true,
   });
 
-  // Auto-save code every 3 seconds if saveCode is enabled
+  // Auto-save code every 1.5 seconds if saveCode is enabled
   setInterval(() => {
     if (settings.autoSave) {
       settings.code = editor.getValue();
