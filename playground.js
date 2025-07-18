@@ -244,7 +244,11 @@ const compilerLanguage = {
     extension: 'js',
   },
   typescript: {
-    // compile: (code) => ts.transpile(code),
+    compile: async () => {
+      outputEl.textContent =
+        '❗️ Error: TypeScript execution is not supported yet.\n';
+      outputEl.classList.add('error-text');
+    },
     extension: 'ts',
   },
 };
