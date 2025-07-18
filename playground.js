@@ -84,6 +84,18 @@ window.require(['vs/editor/editor.main'], async (monaco) => {
     tabSize: 2,
     insertSpaces: true,
     autoIndent: 'advanced',
+    suggestOnTriggerCharacters: true,
+    quickSuggestions: true,
+    parameterHints: { enabled: true },
+    folding: true,
+    foldingStrategy: 'auto',
+    bracketPairColorization: { enabled: true },
+    find: {
+      addExtraSpaceOnTop: true,
+      seedSearchStringFromSelection: true,
+    },
+    hover: { enabled: true },
+    contextmenu: true,
   });
 });
 
@@ -149,13 +161,41 @@ window.addEventListener('change', (e) => {
 /**
  * Quick Pop-up for dev debug
  */
-const showSettingsPopup = (message) => {
+const MessageType = {
+  SUCCESS: 'positive',
+  INFO: 'blue',
+  WARNING: 'negative',
+  CAUTION: 'orange',
+};
+
+const IconMappingMessageType = {
+  [MessageType.SUCCESS]: 'thumbs up outline icon',
+  [MessageType.INFO]: 'info',
+  [MessageType.WARNING]: 'exclamation triangle',
+  [MessageType.CAUTION]: 'exclamation circle',
+};
+
+const showSettingsPopup = (
+  message,
+  sec = 5000,
+  messageType = MessageType.INFO
+) => {
   const popup = document.getElementById('settings-popup');
-  popup.innerHTML = `<i class="info icon"></i> ${message}`;
+
+  // Remove previous type classes
+  popup.classList.remove('positive', 'blue', 'negative', 'black', 'orange');
+  // Add the new type class
+  popup.classList.add(messageType);
+
+  // Use the icon that matches the type, fallback to INFO icon if not found
+  const iconClass = IconMappingMessageType[messageType];
+
+  popup.innerHTML = `<i class="${iconClass} icon"></i> ${message}`;
   popup.style.display = 'block';
+
   setTimeout(() => {
     popup.style.display = 'none';
-  }, 5000);
+  }, sec);
 };
 
 /**
@@ -258,5 +298,9 @@ const compilerLanguage = {
  * This function is called when the "Download Code" button is clicked
  */
 const downloadCode = () => {
-  alert('Download Code function called');
+  showSettingsPopup(
+    'Sorry, download feature is not implemented yet.',
+    2500,
+    MessageType.WARNING
+  );
 };
