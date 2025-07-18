@@ -35,7 +35,14 @@ const useGenericDebounce = <T extends AnyFunction, R = ReturnType<T>>(
       const result = fn(...args);
       if (callback) {
         if (result instanceof Promise) {
-          result.then((resolved: R) => callback(resolved));
+          result
+            .then((resolved: ReturnType<T>) => callback(resolved))
+            .catch((error: unknown) => {
+              console.error(
+                'Unhandled promise rejection in useGenericDebounce:',
+                error
+              );
+            });
         } else {
           callback(result as R);
         }
