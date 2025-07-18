@@ -165,8 +165,14 @@ const MessageType = {
   SUCCESS: 'positive',
   INFO: 'blue',
   WARNING: 'negative',
-  DARK: 'black',
   CAUTION: 'orange',
+};
+
+const IconMappingMessageType = {
+  [MessageType.SUCCESS]: 'thumbs up outline icon',
+  [MessageType.INFO]: 'info',
+  [MessageType.WARNING]: 'exclamation triangle',
+  [MessageType.CAUTION]: 'exclamation circle',
 };
 
 const showSettingsPopup = (message, sec = 5000, messageType) => {
@@ -175,9 +181,16 @@ const showSettingsPopup = (message, sec = 5000, messageType) => {
   // Remove previous type classes
   popup.classList.remove('positive', 'blue', 'negative', 'black', 'orange');
   // Add the new type class
-  popup.classList.add(messageType);
+  const type = Object.values(MessageType).includes(messageType)
+    ? messageType
+    : MessageType.INFO;
+  popup.classList.add(type);
 
-  popup.innerHTML = `<i class="info icon"></i> ${message}`;
+  // Use the icon that matches the type, fallback to INFO icon if not found
+  const iconClass =
+    IconMappingMessageType[type] || IconMappingMessageType[MessageType.INFO];
+
+  popup.innerHTML = `<i class="${iconClass} icon"></i> ${message}`;
   popup.style.display = 'block';
 
   setTimeout(() => {
