@@ -106,3 +106,12 @@ input[type='checkbox'] {
   font-family: 'Courier New', monospace, sans-serif;
   color: #ccc;
 }
+
+/* Popup Styles */
+#settings-popup {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
