@@ -5,11 +5,11 @@ let editor, monacoLibrary, eslintInstance;
 
 // constants
 const AUTO_RUN_TIME = 30000;
+const AUTO_SAVE_INTERVAL_MS = 1500;
 const INIT_JS_CODE = `// Start coding!\nconst greeting = (name) => console.log('Hello ' + name + '!');\ngreeting('World');`;
 const INIT_TS_CODE = `// Start coding!\nconst greeting: (name: string) => void = (name) => console.log('Hello ' + name + '!');\ngreeting('World');`;
 
 // local storage keys
-const LOCAL_STORAGE_SAVED_CODE = 'PLAYGROUND__save_code';
 const LOCAL_STORAGE_SETTINGS = 'PLAYGROUND__settings';
 
 // cookie
@@ -49,7 +49,34 @@ let outputEl;
  */
 const loadSettings = () => {
   const stored = JSON.parse(localStorage.getItem(LOCAL_STORAGE_SETTINGS));
-  if (stored) settings = { ...settings, ...stored };
+  if (stored) {
+    settings = { ...settings, ...stored };
+
+    // Update language selector
+    const langSelector = getEl('language-selector');
+    if (langSelector && stored.language) {
+      langSelector.value = stored.language;
+    }
+
+    // Update theme toggle
+    const themeToggle = getEl('theme-toggle');
+    if (themeToggle && typeof stored.theme === 'string') {
+      // If theme is 'vs' (light), checked = true; if 'vs-dark', checked = false
+      themeToggle.checked = stored.theme === 'vs';
+    }
+
+    // Update autoSave checkbox
+    const saveCodeCheckbox = getEl('save-code');
+    if (saveCodeCheckbox && typeof stored.autoSave === 'boolean') {
+      saveCodeCheckbox.checked = stored.autoSave;
+    }
+
+    // Update autoRun checkbox
+    const autoRunCheckbox = getEl('auto-run');
+    if (autoRunCheckbox && typeof stored.autoRun === 'boolean') {
+      autoRunCheckbox.checked = stored.autoRun;
+    }
+  }
 };
 
 /**
@@ -68,12 +95,20 @@ window.require.config({
 
 window.require(['vs/editor/editor.main'], async (monaco) => {
   monacoLibrary = monaco;
+
+  // Parse localStorage once and reuse
+  const storedSettings = JSON.parse(
+    localStorage.getItem(LOCAL_STORAGE_SETTINGS)
+  );
   loadSettings();
 
   outputEl = getEl('output-container');
 
   editor = monaco.editor.create(getEl('editor-container'), {
-    value: settings.saveCode ? localStorage.getItem(LS_KEY) : settings.code,
+    value:
+      settings.autoSave && storedSettings?.code
+        ? storedSettings?.code
+        : settings.code,
     language: settings.language,
     theme: settings.theme,
     automaticLayout: true,
@@ -97,6 +132,14 @@ window.require(['vs/editor/editor.main'], async (monaco) => {
     hover: { enabled: true },
     contextmenu: true,
   });
+
+  // Auto-save code every 1.5 seconds if saveCode is enabled
+  setInterval(() => {
+    if (settings.autoSave) {
+      settings.code = editor.getValue();
+      saveSettings();
+    }
+  }, AUTO_SAVE_INTERVAL_MS);
 });
 
 /**
@@ -122,9 +165,7 @@ window.addEventListener('change', (e) => {
 
   if (target.id === 'save-code') {
     settings.autoSave = target.checked;
-
-    // Only save settings if autoRun is enabled
-    settings.autoSave && saveSettings();
+    saveSettings();
 
     // Show popup debug for dev
     isDevDebug &&
@@ -135,9 +176,7 @@ window.addEventListener('change', (e) => {
 
   if (target.id === 'auto-run') {
     settings.autoRun = target.checked;
-
-    // Only save settings if autoRun is enabled
-    settings.autoSave && saveSettings();
+    saveSettings();
 
     // Show popup debug for dev
     isDevDebug &&
@@ -147,9 +186,10 @@ window.addEventListener('change', (e) => {
   }
 
   if (target.id === 'theme-toggle') {
-    settings.theme = target.checked;
     const themeValue = target.checked ? 'vs' : 'vs-dark';
+    settings.theme = themeValue;
     monacoLibrary.editor.setTheme(themeValue);
+    saveSettings();
 
     // Show popup debug for dev
     isDevDebug && showSettingsPopup(`Theme changed to <b>${themeValue}</b>`);
