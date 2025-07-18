@@ -199,28 +199,64 @@ const runCode = async () => {
  * Execute the code in the editor
  * This function captures console.log output and displays it in the output container
  */
-const executeCode = (code) => {
-  // Save original console.log
-  const originalLog = console.log;
-  let output = '';
-  console.log = function (...args) {
-    output += args.join(' ') + '\n';
-  };
-
-  try {
-    eval(code);
-    outputEl.classList.remove('error-text');
-    outputEl.textContent = output;
-  } catch (error) {
-    outputEl.textContent = '❗️ Error: ' + error.message;
+const executeCode = async (code) => {
+  // if programming language is not supported, show error
+  if (!settings.language || !compilerLanguage[settings.language]) {
+    outputEl.textContent = `❗️ Error: Unsupported language "${settings.language}"\n`;
     outputEl.classList.add('error-text');
+    return;
   }
 
-  // Restore original console.log
-  console.log = originalLog;
+  // compile/transpile code if necessary
+  const compiler = compilerLanguage[settings.language];
+  if (compiler.compile) {
+    await compiler.compile(code);
+  } else {
+    outputEl.textContent = `❗️ Error: No compile function defined for "${settings.language}"\n`;
+    outputEl.classList.add('error-text');
+  }
 };
 
-// Download code
+/**
+ * Object mapping for each programming language
+ * Each language has its way to compile/transpile code
+ */
+const compilerLanguage = {
+  javascript: {
+    compile: async (code) => {
+      const originalLog = console.log;
+      let output = '';
+      console.log = function (...args) {
+        output += args.join(' ') + '\n';
+      };
+
+      try {
+        new Function(code)();
+        outputEl.classList.remove('error-text');
+        outputEl.textContent = output;
+      } catch (error) {
+        outputEl.textContent = '❗️ Error: ' + error.message + '\n';
+        outputEl.classList.add('error-text');
+      }
+
+      console.log = originalLog;
+    },
+    extension: 'js',
+  },
+  typescript: {
+    compile: async () => {
+      outputEl.textContent =
+        '❗️ Error: TypeScript execution is not supported yet.\n';
+      outputEl.classList.add('error-text');
+    },
+    extension: 'ts',
+  },
+};
+
+/**
+ * Download code as a file
+ * This function is called when the "Download Code" button is clicked
+ */
 const downloadCode = () => {
   alert('Download Code function called');
 };
