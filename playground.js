@@ -175,20 +175,20 @@ const IconMappingMessageType = {
   [MessageType.CAUTION]: 'exclamation circle',
 };
 
-const showSettingsPopup = (message, sec = 5000, messageType) => {
+const showSettingsPopup = (
+  message,
+  sec = 5000,
+  messageType = MessageType.INFO
+) => {
   const popup = document.getElementById('settings-popup');
 
   // Remove previous type classes
   popup.classList.remove('positive', 'blue', 'negative', 'black', 'orange');
   // Add the new type class
-  const type = Object.values(MessageType).includes(messageType)
-    ? messageType
-    : MessageType.INFO;
-  popup.classList.add(type);
+  popup.classList.add(messageType);
 
   // Use the icon that matches the type, fallback to INFO icon if not found
-  const iconClass =
-    IconMappingMessageType[type] || IconMappingMessageType[MessageType.INFO];
+  const iconClass = IconMappingMessageType[messageType];
 
   popup.innerHTML = `<i class="${iconClass} icon"></i> ${message}`;
   popup.style.display = 'block';
