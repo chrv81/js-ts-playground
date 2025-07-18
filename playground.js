@@ -5,6 +5,7 @@ let editor, monacoLibrary, eslintInstance;
 
 // constants
 const AUTO_RUN_TIME = 30000;
+const AUTO_SAVE_INTERVAL_MS = 1500;
 const INIT_JS_CODE = `// Start coding!\nconst greeting = (name) => console.log('Hello ' + name + '!');\ngreeting('World');`;
 const INIT_TS_CODE = `// Start coding!\nconst greeting: (name: string) => void = (name) => console.log('Hello ' + name + '!');\ngreeting('World');`;
 
@@ -133,7 +134,7 @@ window.require(['vs/editor/editor.main'], async (monaco) => {
       settings.code = editor.getValue();
       saveSettings();
     }
-  }, 1500);
+  }, AUTO_SAVE_INTERVAL_MS);
 });
 
 /**
