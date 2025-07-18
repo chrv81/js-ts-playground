@@ -95,15 +95,20 @@ window.require.config({
 
 window.require(['vs/editor/editor.main'], async (monaco) => {
   monacoLibrary = monaco;
+
+  // Parse localStorage once and reuse
+  const storedSettings = JSON.parse(
+    localStorage.getItem(LOCAL_STORAGE_SETTINGS)
+  );
   loadSettings();
 
   outputEl = getEl('output-container');
 
   editor = monaco.editor.create(getEl('editor-container'), {
-    value: settings.autoSave
-      ? JSON.parse(localStorage.getItem(LOCAL_STORAGE_SETTINGS))?.code ||
-        settings.code
-      : settings.code,
+    value:
+      settings.autoSave && storedSettings?.code
+        ? storedSettings?.code
+        : settings.code,
     language: settings.language,
     theme: settings.theme,
     automaticLayout: true,
