@@ -210,3 +210,61 @@ Used to match the inside of an HTML tag, including any attributes and quoted val
 
 ### `tagOrComment`
 
+...
+
+## OPTION 3 - Using DOMPurify
+
+DOMPurify is a robust and secure way to sanitize HTML. It allows you to specify which tags and attributes should be allowed.
+
+First, install DOMPurify using npm:
+
+```bash
+npm install dompurify
+```
+
+or using CDN from [jsdelivr](https://www.jsdelivr.com/package/npm/dompurify) package (popular public CDN for npm packages). Check out their CDN install page for dompurify: https://www.jsdelivr.com/package/npm/dompurify
+
+```html
+<!-- Add this in your HTML <head> or before your script -->
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+
+```
+
+Then, implement them in code such as OPTION 1:
+
+```tsx
+import DOMPurify from 'dompurify';
+
+const sanitizeHTML = (html: string) => {
+  // Specify the tags you want to allow
+  const allowedTags = ['b', 'i', 'nobr', 'br'];
+
+  // Specify the attributes you want to allow
+  const allowedAttributes = ['class', 'id'];
+
+  // Configure DOMPurify
+  const cleanHTML = DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: allowedTags,
+    ALLOWED_ATTR: allowedAttributes,
+  });
+
+  return cleanHTML;
+}
+```
+
+In this example, `sanitizeHTML` is a function that takes a string of HTML, sanitizes it with DOMPurify, and returns the sanitized HTML. The `ALLOWED_TAGS` and `ALLOWED_ATTR` options are used to specify which tags and attributes should be allowed.
+
+Please note that DOMPurify works in a browser environment and needs a DOM to work. If using it in a server-side environment like Node.js, then need to use it with a library like JSDOM to provide a DOM.
+
+To install JSDOM with npm:
+```bash
+npm install jsdom
+
+```
+
+or CDN:
+```html
+<script src="https://cdn.jsdelivr.net/npm/jsdom@26.1.0/lib/api.min.js"></script>
+```
+
+Read more here: [https://www.jsdelivr.com/package/npm/jsdom](https://www.jsdelivr.com/package/npm/jsdom)
