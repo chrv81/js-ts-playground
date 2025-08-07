@@ -51,7 +51,7 @@ const tagOrComment = new RegExp(
   'gi'
 );
 
-const removeTags = (html) => {
+const removeTags = (html: string) => {
   let oldHtml;
   do {
     oldHtml = html;
