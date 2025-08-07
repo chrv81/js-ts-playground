@@ -369,8 +369,8 @@ or another clint side example
 ```
 
 or server-side
-```
-const xss = require('xss');
+```js
+import xss from 'xss';
 
 // containing potentially unsafe HTML (with a <script> tag)
 const dirty = '<script>alert("xss")</script><b>Hello</b>';
@@ -378,5 +378,6 @@ const clean = xss(dirty);
 
 console.log(clean); // Output: &lt;script&gt;alert("xss")&lt;/script&gt;<b>Hello</b>
 ```
+
 
 
