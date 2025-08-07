@@ -254,7 +254,11 @@ const sanitizeHTML = (html: string) => {
 
 In this example, `sanitizeHTML` is a function that takes a string of HTML, sanitizes it with DOMPurify, and returns the sanitized HTML. The `ALLOWED_TAGS` and `ALLOWED_ATTR` options are used to specify which tags and attributes should be allowed.
 
-Please note that DOMPurify works in a browser environment and needs a DOM to work. If using it in a server-side environment like Node.js, then need to use it with a library like JSDOM to provide a DOM.
+Please note that DOMPurify works in a browser environment and needs a DOM to work. 
+
+## OPTION 4 - using `JSDOM`
+
+If using it in a server-side environment like Node.js, then need to use it with a library like JSDOM to provide a DOM.
 
 To install JSDOM with npm:
 ```bash
@@ -268,3 +272,33 @@ or CDN:
 ```
 
 Read more here: [https://www.jsdelivr.com/package/npm/jsdom](https://www.jsdelivr.com/package/npm/jsdom)
+
+Common use of `jsdom` is scraping and extracting data from an external HTML page:
+
+```ts
+import { JSDOM } from 'jsdom';
+import fetch from 'node-fetch';
+
+// Fetch HTML and extract all links
+const extractLinks = async (url: string): Promise<string[]> => {
+  const response = await fetch(url);
+  const html = await response.text();
+
+  const dom = new JSDOM(html);
+  const document = dom.window.document;
+
+  // Extract all href attributes from <a> tags
+  const links = Array.from(document.querySelectorAll('a'))
+    .map(a => a.href)
+    .filter(href => !!href);
+
+  return links;
+};
+
+// Usage example
+extractLinks('https://example.com').then(links => {
+  console.log('Links found:', links);
+});
+```
+
+
