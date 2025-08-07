@@ -5,9 +5,6 @@ body {
   padding: 0;
   height: 100%;
   color: #ccc !important;
-}
-
-body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
