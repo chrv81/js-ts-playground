@@ -3,7 +3,7 @@ Some HTML tags can be dangerous. For example, `<script>` can run code that does 
 
 By only allowing safe tags, we stop people from sneaking in bad stuff.
 
-## OPTTION 1
+## OPTION 1
 
 The `sanitizeHTML` function uses these regexes to remove all disallowed HTML tags and `onClick` attributes from the input string.
 
