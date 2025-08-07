@@ -1,0 +1,93 @@
+name: PR Workflow
+
+on:
+  pull_request:
+    types: [closed]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  # Auto-delete branch after merge
+  cleanup-branch:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    name: Delete merged branch
+
+    steps:
+      - name: Delete branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const branchName = context.payload.pull_request.head.ref;
+
+            // Don't delete main/master branches
+            if (branchName === 'main' || branchName === 'master') {
+              console.log('Skipping deletion of protected branch:', branchName);
+              return;
+            }
+
+            try {
+              await github.rest.git.deleteRef({
+                owner,
+                repo,
+                ref: `heads/${branchName}`
+              });
+              console.log('Successfully deleted branch:', branchName);
+            } catch (error) {
+              console.log('Error deleting branch:', error.message);
+              // Branch might already be deleted, which is fine
+            }
+
+  # Check if PR can be merged (all reviews resolved)
+  check-merge-readiness:
+    if: github.event_name == 'pull_request_review'
+    runs-on: ubuntu-latest
+    name: Check merge readiness
+
+    steps:
+      - name: Check if all reviews are resolved
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            // Get all review comments
+            const reviews = await github.rest.pulls.listReviews({
+              owner,
+              repo,
+              pull_number
+            });
+
+            const reviewComments = await github.rest.pulls.listReviewComments({
+              owner,
+              repo,
+              pull_number
+            });
+
+            // Check for unresolved conversations
+            const unresolvedComments = reviewComments.data.filter(comment => 
+              !comment.in_reply_to_id && comment.body.includes('MUST FIX')
+            );
+
+            if (unresolvedComments.length > 0) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: pull_number,
+                body: `⚠️ **Merge Blocked**: This PR has ${unresolvedComments.length} unresolved review comment(s) that must be addressed before merging.`
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: pull_number,
+                body: `✅ **All reviews resolved**: This PR is ready for merge.`
+              });
+            }
