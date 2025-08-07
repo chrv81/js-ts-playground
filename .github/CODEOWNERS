@@ -1,0 +1,21 @@
+# Global code owners - require review for all changes
+* @chrv81
+
+# JavaScript and TypeScript files
+*.js @chrv81
+*.ts @chrv81
+*.jsx @chrv81
+*.tsx @chrv81
+
+# Configuration files
+*.json @chrv81
+*.yml @chrv81
+*.yaml @chrv81
+*.md @chrv81
+
+# GitHub workflows and settings
+.github/ @chrv81
+
+# Web files
+*.html @chrv81
+*.css @chrv81
