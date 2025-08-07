@@ -1,0 +1,43 @@
+name: GitHub Copilot Review
+
+on:
+  pull_request:
+    types: [opened]
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  copilot-review:
+    runs-on: ubuntu-latest
+    name: GitHub Copilot Review
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: GitHub Copilot Review
+        uses: github/copilot-review-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Review JavaScript and TypeScript files
+          file-patterns: |
+            **/*.js
+            **/*.ts
+            **/*.jsx
+            **/*.tsx
+            **/*.html
+            **/*.css
+          # Exclude certain directories if needed
+          exclude-patterns: |
+            node_modules/**
+            dist/**
+            build/**
+          # Review focus areas
+          review-simple-changes: false
+          review-complex-changes: true
+          auto-review: true
