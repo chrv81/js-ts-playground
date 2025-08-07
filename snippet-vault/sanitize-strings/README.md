@@ -1,5 +1,4 @@
-# Santize Strings
-
+# Sanitize Strings
 Some HTML tags can be dangerous. For example, `<script>` can run code that does bad things.
 
 By only allowing safe tags, we stop people from sneaking in bad stuff.
