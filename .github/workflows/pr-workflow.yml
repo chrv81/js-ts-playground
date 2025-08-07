@@ -65,23 +65,23 @@ jobs:
               pull_number
             });
 
-            const reviewComments = await github.rest.pulls.listReviewComments({
+            // Get all review threads for the PR
+            const reviewThreads = await github.rest.pulls.listReviewThreads({
               owner,
               repo,
               pull_number
             });
 
-            // Check for unresolved conversations
-            const unresolvedComments = reviewComments.data.filter(comment => 
-              !comment.in_reply_to_id && comment.body.includes('MUST FIX')
-            );
+            // Check for unresolved conversations using GitHub's built-in resolution status
+            const unresolvedThreads = reviewThreads.data.filter(thread => thread.resolved === false);
 
-            if (unresolvedComments.length > 0) {
+
+            if (unresolvedThreads.length > 0) {
               await github.rest.issues.createComment({
                 owner,
                 repo,
                 issue_number: pull_number,
-                body: `⚠️ **Merge Blocked**: This PR has ${unresolvedComments.length} unresolved review comment(s) that must be addressed before merging.`
+                body: `⚠️ **Merge Blocked**: This PR has ${unresolvedThreads.length} unresolved review conversation(s) that must be addressed before merging.`
               });
             } else {
               await github.rest.issues.createComment({
