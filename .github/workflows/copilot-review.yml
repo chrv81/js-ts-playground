@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: GitHub Copilot Review
-        uses: github/copilot-review-action@v1
+        uses: github/copilot-actions/review@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # Review JavaScript and TypeScript files

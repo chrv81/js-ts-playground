@@ -1,11 +1,13 @@
 html,
-body,
-.u {
+body {
   font-family: 'Courier New', monospace, sans-serif;
   margin: 0;
   padding: 0;
-  height: 100vh;
+  height: 100%;
   color: #ccc !important;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 button,
@@ -40,26 +42,34 @@ input[type='checkbox'] {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
 }
 
 #controller {
   display: flex;
   flex-direction: row;
   gap: 1.5rem;
+  align-items: center;
 }
 
 #button-group {
   display: flex;
   flex-direction: row;
   gap: 1rem;
+  align-items: center;
+}
+
+.controller-item label,
+.controller-item input[type='checkbox'] {
+  vertical-align: middle;
 }
 
 /* Text Editor Styles */
 #container {
   display: flex;
   flex-direction: row;
-  height: calc(100vh - 110px); /* Adjust 120px to match your navbar height */
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 #editor-container {
@@ -114,4 +124,28 @@ input[type='checkbox'] {
   bottom: 20px;
   right: 20px;
   z-index: 1000;
+  margin-bottom: 0 !important;
+}
+
+/* Footer Styles */
+footer.ui.segment.app-footer {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border-top: 1px solid #4e4e4e !important;
+  padding: 1rem 0 !important;
+}
+
+.ui.container.app-footer-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.footer-links .icon {
+  font-size: 1.3em !important;
 }

@@ -58,23 +58,28 @@ jobs:
             const { owner, repo } = context.repo;
             const pull_number = context.payload.pull_request.number;
 
-            // Get all review comments
-            const reviews = await github.rest.pulls.listReviews({
+            // Use GraphQL to get unresolved review threads
+            const query = `
+              query($owner: String!, $repo: String!, $pull_number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $pull_number) {
+                    reviewThreads(first: 100) {
+                      nodes {
+                        isResolved
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            const result = await github.graphql(query, {
               owner,
               repo,
               pull_number
             });
 
-            // Get all review threads for the PR
-            const reviewThreads = await github.rest.pulls.listReviewThreads({
-              owner,
-              repo,
-              pull_number
-            });
-
-            // Check for unresolved conversations using GitHub's built-in resolution status
-            const unresolvedThreads = reviewThreads.data.filter(thread => thread.resolved === false);
-
+            const threads = result.repository.pullRequest.reviewThreads.nodes;
+            const unresolvedThreads = threads.filter(thread => thread.isResolved === false);
 
             if (unresolvedThreads.length > 0) {
               await github.rest.issues.createComment({
