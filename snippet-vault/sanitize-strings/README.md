@@ -301,4 +301,82 @@ extractLinks('https://example.com').then(links => {
 });
 ```
 
+## OPTION 5 - using `js-xss`
+
+`js-xss` is a powerful library for sanitizing HTML to prevent XSS attacks. It provides a flexible configuration to specify which HTML tags and attributes are allowed.
+
+First, install js-xss.
+
+Using npm:
+
+```tsx
+npm install xss
+```
+
+or with CDN
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/xss/dist/xss.min.js"></script>
+```
+
+Then, you can use it in your code like this:
+
+Client side:
+```tsx
+import xss from 'xss';
+
+const sanitizeHTML = (html: string) => {
+  // Specify the tags you want to allow
+  const allowedTags = ['b', 'i', 'nobr', 'br'];
+
+  // Specify the attributes you want to allow
+  const allowedAttributes = {
+    'a': ['href', 'title', 'target'],
+    'img': ['src', 'alt', 'title'],
+    'div': ['class'],
+    // Add more tags/attributes if you need
+  };
+
+  // Configure js-xss
+  const options = {
+    whiteList: {
+      ...xss.getDefaultWhiteList(), // Use the default whitelist
+      ...allowedTags.reduce((obj, tag) => ({ ...obj, [tag]: allowedAttributes[tag] || [] }), {}), // Add your tags to the whitelist
+    },
+    stripIgnoreTag: true, // Strip all tags that are not in the whitelist
+    stripIgnoreTagBody: ['script'] // Strip the body of ignored tags
+  };
+
+  const cleanHTML = xss(html, options);
+
+  return cleanHTML;
+}
+```
+
+In this example, `sanitizeHTML` is a function that takes a string of HTML, sanitizes it with js-xss, and returns the sanitized HTML. The `whiteList` option is used to specify which tags and attributes should be allowed. The `stripIgnoreTag` and `stripIgnoreTagBody` options are used to remove all tags and tag bodies that are not in the whitelist.
+
+or another clint side example
+```html
+<script src="https://cdn.jsdelivr.net/npm/xss/dist/xss.min.js"></script>
+<script>
+  // string contains an <img> tag with an onerror attribute, which could trigger XSS
+  const dirty = '<img src="x" onerror="alert(1)">Hi!';
+
+  // function (provided globally by the library) sanitizes the input, removing dangerous attributes like onerror
+  const clean = filterXSS(dirty);
+  document.body.innerHTML = clean; // Safe to insert
+</script>
+```
+
+or server-side
+```
+const xss = require('xss');
+
+// containing potentially unsafe HTML (with a <script> tag)
+const dirty = '<script>alert("xss")</script><b>Hello</b>';
+const clean = xss(dirty);
+
+console.log(clean); // Output: &lt;script&gt;alert("xss")&lt;/script&gt;<b>Hello</b>
+```
+
 
